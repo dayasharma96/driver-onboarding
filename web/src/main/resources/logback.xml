@@ -1,0 +1,85 @@
+<configuration debug="true" scan="false"
+    scanPeriod="1 minutes">
+    <jmxConfigurator />
+
+    <springProperty scope="context" name="serverName"
+        source="HOSTNAME" />
+    <appender name="STDOUT"
+        class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date %X{request-id} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Log to file if we can find out which file to log to; set log level 
+        for this as well. -->
+    <if condition='isDefined("LOG_FILE")'>
+        <then>
+            <!-- com.uber.driver.onboarding.A daily rolling file appender -->
+            <appender name="FILE"
+                class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${LOG_FILE}</file>
+                <rollingPolicy
+                    class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}
+                    </fileNamePattern>
+                    <maxHistory>3000</maxHistory>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>%date [${serverName:-${HOSTNAME}}] [%thread] %-5level %logger{36} - %msg%n</pattern>
+                </encoder>
+            </appender>
+
+            <!-- An asynchronous wrapper for the file appender -->
+            <appender name="ASYNC_FILE"
+                class="ch.qos.logback.classic.AsyncAppender">
+                <appender-ref ref="FILE" />
+                <queueSize>1024</queueSize>
+            </appender>
+
+            <!-- Set ROOT_APPPENDER so we start appending logs to file. -->
+            <property name="ROOT_APPENDER" value="ASYNC_FILE" />
+        </then>
+    </if>
+    
+    <logger name="access.log" level="${LOG_LEVEL:-ERROR}"/>
+
+    <if condition='isDefined("ACCESS_LOG_FILE")'>
+        <then>
+            <!-- com.uber.driver.onboarding.A daily rolling file appender -->
+            <appender name="ACCESS_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${ACCESS_LOG_FILE}</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>${ACCESS_LOG_FILE}.%d{yyyy-MM-dd}</fileNamePattern>
+                    <maxHistory>3000</maxHistory>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>%msg [${serverName:-${HOSTNAME}}] %X{request-id} [%thread] %-5level%n</pattern>
+                </encoder>
+            </appender>
+
+            <!-- An asynchronous wrapper for the file appender -->
+            <appender name="ACCESS_LOG_ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+                <appender-ref ref="ACCESS_LOG_FILE" />
+                <queueSize>1024</queueSize>
+            </appender>
+
+            <logger name="access.log" level="INFO" additivity="false">
+                <appender-ref ref="ACCESS_LOG_ASYNC_FILE"/>
+            </logger>
+        </then>
+    </if>
+
+    <!-- Configure log level here -->
+    <logger name="com.uber"
+        level="${LOG_LEVEL:-INFO}" />
+    <logger name="org.apache.zookeeper" level="WARN" />
+    <logger name="org.apache.kafka" level="WARN" />
+    <logger name="org.springframework" level="WARN" />
+
+    <root level="INFO">
+        <appender-ref ref="${ROOT_APPENDER:-STDOUT}" />
+    </root>
+
+</configuration>
