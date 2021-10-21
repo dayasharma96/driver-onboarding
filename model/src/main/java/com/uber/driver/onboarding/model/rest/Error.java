@@ -8,11 +8,13 @@ public class Error {
 
     private final FailureType failureType;
     private final String errorMessage;
+    private final String stackTrace;
 
     @JsonCreator
-    public Error(@JsonProperty("failureType") FailureType failureType, @JsonProperty("errorMessage") String errorMessage) {
+    public Error(@JsonProperty("failureType") FailureType failureType, @JsonProperty("errorMessage") String errorMessage, @JsonProperty("stackTrace") String stackTrace) {
         this.failureType = failureType;
         this.errorMessage = errorMessage;
+        this.stackTrace = stackTrace;
     }
 
     public FailureType getFailureType() {
@@ -23,11 +25,16 @@ public class Error {
         return errorMessage;
     }
 
+    public String getStackTrace() {
+        return stackTrace;
+    }
+
     @Override
     public String toString() {
         return "Error{" +
                 "failureType=" + failureType +
                 ", errorMessage='" + errorMessage + '\'' +
+                ", stackTrace='" + stackTrace + '\'' +
                 '}';
     }
 }

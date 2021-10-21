@@ -1,7 +1,6 @@
 package com.uber.driver.onboarding.core.util;
 
 import com.uber.driver.onboarding.model.enums.UserType;
-import com.uber.driver.onboarding.model.pojo.IProperties;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +28,8 @@ public class SecurityUtil {
     public static final String RST_PWD_LINK = "resetPasswordLink";
     public static final String RST_PWD_TOKEN_EXPIRY_MINUTES = "resetPasswordTokenExpiry";
 
-    private static final String PIPE_SEPARATOR = "|";
-    private static final String PIPE_REGEX = "\\|";
+    public static final String PIPE_SEPARATOR = "|";
+    public static final String PIPE_REGEX = "\\|";
 
     private static final Object AES_KEY_MUTEX = new Object();
     private static SecretKey AES_SECRET_KEY = getSecretKey();
@@ -63,7 +62,7 @@ public class SecurityUtil {
         return Base64.encodeBase64String(bytes);
     }
 
-    public static boolean isPasswordMatch(String base64EncodedPwdHash, String base64EncodedSalt, String password) throws NoSuchAlgorithmException {
+    public static boolean isPasswordMatch(String base64EncodedPwdHash, String base64EncodedSalt, String password) {
         return base64EncodedPwdHash.equalsIgnoreCase(getBase64EncodedString(getPasswordHash(password, getBase64Decoded(base64EncodedSalt))));
     }
 
@@ -75,10 +74,10 @@ public class SecurityUtil {
         return new String(Base64.decodeBase64(encodedString));
     }
 
-    public static Cookie generateAuthenticationCookie(UserType userType, String profileId, IProperties properties) {
+    public static Cookie generateAuthenticationCookie(UserType userType, String profileId) {
         Cookie authenticationCookie = new Cookie(AUTH_COOKIE_NAME, aesEncrypt(createAuthCookieValue(userType, profileId), getAuthKey()));
         setDefaultCookieParams(authenticationCookie);
-        authenticationCookie.setMaxAge(60 * properties.getIntPropertyValue("driver.onboarding.api.auth.cookie.expiry.minutes", 1440));
+        authenticationCookie.setMaxAge(60 * 1440);
         return authenticationCookie;
     }
 

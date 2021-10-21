@@ -5,4 +5,6 @@ import com.uber.driver.onboarding.model.enums.UserType;
 
 public interface IUserService {
     User signup(UserType type, String email, String password);
+    User login(UserType type, String email, String password);
+    User findUser(String id);
 }

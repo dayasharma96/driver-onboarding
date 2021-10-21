@@ -1,4 +1,4 @@
-package com.uber.driver.onboarding.core.util;
+package com.uber.driver.onboarding.model.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;

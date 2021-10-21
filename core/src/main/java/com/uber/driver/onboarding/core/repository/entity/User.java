@@ -1,8 +1,12 @@
 package com.uber.driver.onboarding.core.repository.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.uber.driver.onboarding.core.repository.listener.UserStateListener;
 import com.uber.driver.onboarding.core.util.SecurityUtil;
+import com.uber.driver.onboarding.model.enums.DriverState;
+import com.uber.driver.onboarding.model.enums.RiderState;
 import com.uber.driver.onboarding.model.enums.UserType;
+import com.uber.driver.onboarding.model.util.JsonUtil;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -11,7 +15,12 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user")
+@Table(name = "user",
+    indexes = {
+        @Index(name = "emailType", columnList = "email, user_type", unique = true)
+    }
+)
+@EntityListeners(UserStateListener.class)
 public class User implements Serializable {
 
     private static final long serialVersionUID = 464806493213082210L;
@@ -22,26 +31,37 @@ public class User implements Serializable {
     @Column(updatable = false, length = 36)
     private String id;
 
-    @Column(name = "email", unique = true, insertable = true, nullable = false, updatable = false)
+    @Column(name = "email", nullable = false, updatable = false)
     private String email;
+
+    @Column(name = "phone", nullable = false, updatable = false)
+    private String phone;
 
     @Column(name = "name", length = 100)
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type")
+    @Column(name = "user_type", nullable = false, updatable = false)
     private UserType userType;
 
-    @Column(name = "pwd_salt", insertable = true, nullable = false, length = 5000)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "driver_state")
+    private DriverState driverState;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rider_state")
+    private RiderState riderState;
+
+    @Column(name = "pwd_salt", nullable = false, length = 5000)
     private String pwdSalt;
 
-    @Column(name = "pwd_hash", insertable = true, nullable = false, length = 5000)
+    @Column(name = "pwd_hash", nullable = false, length = 5000)
     private String pwdHash;
 
-    @Column(name = "creation_date", nullable = true)
+    @Column(name = "creation_date", nullable = false)
     private Date creationDate;
 
-    @Column(name = "last_update_date", nullable = true)
+    @Column(name = "last_update_date", nullable = false)
     private Date lastUpdateDate;
 
     public String getId() {
@@ -60,12 +80,36 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public UserType getUserType() {
         return userType;
     }
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public DriverState getDriverState() {
+        return driverState;
+    }
+
+    public void setDriverState(DriverState driverState) {
+        this.driverState = driverState;
+    }
+
+    public RiderState getRiderState() {
+        return riderState;
+    }
+
+    public void setRiderState(RiderState riderState) {
+        this.riderState = riderState;
     }
 
     public String getName() {
@@ -129,15 +173,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id='" + id + '\'' +
-                ", email='" + email + '\'' +
-                ", name='" + name + '\'' +
-                ", userType=" + userType +
-                ", pwdHash='" + pwdHash + '\'' +
-                ", creationDate=" + creationDate +
-                ", lastUpdateDate=" + lastUpdateDate +
-                '}';
+        return JsonUtil.toJson(this);
     }
 
     @JsonIgnore
@@ -151,7 +187,13 @@ public class User implements Serializable {
         byte[] passwordHash = SecurityUtil.getPasswordHash(password, salt);
         user.setPwdSalt(SecurityUtil.getBase64EncodedString(salt));
         user.setPwdHash(SecurityUtil.getBase64EncodedString(passwordHash));
-        return null;
+        if(type.equals(UserType.DRIVER)) {
+            user.setDriverState(DriverState.SIGNED_UP);
+        }
+        else {
+            user.setRiderState(RiderState.OPEN);
+        }
+        return user;
     }
 
 }

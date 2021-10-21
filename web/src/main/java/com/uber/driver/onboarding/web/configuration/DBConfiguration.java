@@ -10,6 +10,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 
+import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -39,8 +40,8 @@ public class DBConfiguration {
     }
 
     @Bean
-    public UserDao getUserDao(SessionFactory sessionFactory) {
-        return new UserDao(User.class, sessionFactory);
+    public UserDao getUserDao(EntityManager entityManager) {
+        return new UserDao(User.class, entityManager);
     }
 
     private Properties hibernateProperties() {
