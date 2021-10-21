@@ -1,0 +1,31 @@
+lib
+save
+logs
+.idea
+dist
+build
+.classpath
+.project
+.settings
+.vscode
+dependency-reduced-pom.xml
+
+# Operating System Files
+*.DS_Store
+*~
+.#*
+#*
+*#
+
+# Build Files #
+bin
+out
+target
+build/
+.gradle
+
+# IntelliJ IDEA Files #
+*.iml
+*.ipr
+*.iws
+*.idea
