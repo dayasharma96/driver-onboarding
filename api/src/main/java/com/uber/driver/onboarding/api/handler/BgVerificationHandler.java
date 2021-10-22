@@ -33,6 +33,9 @@ public class BgVerificationHandler extends AbstractMsgHandler {
 
             // Process this stage.....
             System.out.println("Verify BG HERE");
+            // This will trigger an entry in Background Verification table...
+            // These dataset will be visible on a UI for action...
+            // Furthermore, an api will be called to trigger completion of background verification.
         }
     }
 

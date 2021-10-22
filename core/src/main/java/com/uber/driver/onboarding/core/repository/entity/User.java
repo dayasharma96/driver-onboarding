@@ -1,7 +1,6 @@
 package com.uber.driver.onboarding.core.repository.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.uber.driver.onboarding.core.repository.listener.UserStateListener;
 import com.uber.driver.onboarding.core.util.SecurityUtil;
 import com.uber.driver.onboarding.model.enums.DriverState;
 import com.uber.driver.onboarding.model.enums.RiderState;
@@ -20,7 +19,6 @@ import java.util.Objects;
         @Index(name = "emailType", columnList = "email, user_type", unique = true)
     }
 )
-@EntityListeners(UserStateListener.class)
 public class User implements Serializable {
 
     private static final long serialVersionUID = 464806493213082210L;

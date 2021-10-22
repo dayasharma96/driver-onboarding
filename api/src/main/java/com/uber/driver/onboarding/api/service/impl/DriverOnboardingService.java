@@ -10,7 +10,6 @@ import com.uber.driver.onboarding.model.enums.DriverState;
 import com.uber.driver.onboarding.model.enums.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 public class DriverOnboardingService implements IDriverOnboarding {
 
@@ -31,9 +30,17 @@ public class DriverOnboardingService implements IDriverOnboarding {
         user.setDriverState(DriverState.BACKGROUND_VERIFICATION_IN_PROGRESS);
 
         // send Event for processing
-        msgProducer.publishMessage(new Message(userId, MessageType.DRIVER_BG_VERIFICATION, user.toString(), null));
+        sendStateEvent(user);
 
         // Update user state
+        userDao.saveOrUpdate(user);
+    }
+
+    @Override
+    public void confirmDriverVerification(String userId) {
+        User user = userDao.findById(userId);
+        user.setDriverState(DriverState.BACKGROUND_VERIFIED);
+        sendStateEvent(user);
         userDao.saveOrUpdate(user);
     }
 
@@ -42,6 +49,13 @@ public class DriverOnboardingService implements IDriverOnboarding {
         assert user.getUserType().equals(UserType.DRIVER);
         if (user.getDriverState() != DriverState.DOCUMENT_COLLECTED) {
             throw new RuntimeException("Driver documents not collected or in-progress or already verified.");
+        }
+    }
+
+    private void sendStateEvent(User user) {
+        MessageType messageType = MessageType.lookUp(user.getDriverState());
+        if(messageType != null) {
+            msgProducer.publishMessage(new Message(user.getId(), messageType, user.toString(), null));
         }
     }
 
