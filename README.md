@@ -15,12 +15,13 @@
 
 ### Tech-Stack + Patterns ###
 - Database : MySQL + Blob-Store(Document verification)
+- Tech : Spring-Boot + Spring-Data-JPA + Hibernate ORM
 - Async Messaging : Pub/Sub pattern via Apache Kafka
 - Swagger : API Documentation
 - Change-Listeners : Observer Handler pattern using Kafka-consumers (+ Should have database change listeners for state change : Not implemented)
 - Principles/Patterns : SOLID + Choreography SAGA + Observer - Listeners + Handlers
 
-### Components (Only which can be demoable in 3 hours dev time-period) ###
+### Components ###
 - Services : IUserService, IDriverOnboarding, IDriverDocService
 - Message-Handlers : BgVerificationHandler, TrackingDeviceShipmentHandler, etc.
 - Entity : User, DriverInfo {mysql-relational DB}

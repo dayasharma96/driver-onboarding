@@ -1,7 +1,9 @@
 package com.uber.driver.onboarding.api.service.impl;
 
 import com.uber.driver.onboarding.api.service.IDriverDocumentService;
+import com.uber.driver.onboarding.core.repository.dao.IDriverInfoDao;
 import com.uber.driver.onboarding.core.repository.dao.IUserDao;
+import com.uber.driver.onboarding.core.repository.entity.DriverInfo;
 import com.uber.driver.onboarding.core.repository.entity.User;
 import com.uber.driver.onboarding.model.enums.DocumentType;
 import com.uber.driver.onboarding.model.enums.DriverState;
@@ -10,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class DriverDocService implements IDriverDocumentService {
 
@@ -18,9 +21,11 @@ public class DriverDocService implements IDriverDocumentService {
     private static final String DRIVER_DOCUMENT_FOLDER_PATH = "/tmp/driverDocuments/%s/";
 
     private final IUserDao userDao;
+    private final IDriverInfoDao driverInfoDao;
 
-    public DriverDocService(IUserDao userDao) {
+    public DriverDocService(IUserDao userDao, IDriverInfoDao driverInfoDao) {
         this.userDao = userDao;
+        this.driverInfoDao = driverInfoDao;
     }
 
     @Override
@@ -31,10 +36,26 @@ public class DriverDocService implements IDriverDocumentService {
         }
         driver.setDriverState(DriverState.DOCUMENT_COLLECTED);
 
+        // update doc info received..
+        updateDriverInfo(driver, type);
+
         // save documents to aws s3 bucket or GCS...
         saveFile(driverId, type, file);
 
         userDao.saveOrUpdate(driver);
+    }
+
+    private void updateDriverInfo(User user, DocumentType type) {
+        DriverInfo driverInfo = user.getDriverInfo();
+        switch (type) {
+            case RC:
+                driverInfo.setReceivedRC(true);
+                break;
+            case LICENSE:
+                driverInfo.setReceivedLC(true);
+                break;
+        }
+        driverInfoDao.saveOrUpdate(driverInfo);
     }
 
     private void saveFile(String driverId, DocumentType type, MultipartFile file) {

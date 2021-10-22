@@ -29,13 +29,17 @@ public class BgVerificationHandler extends AbstractMsgHandler {
         User dbUser = userService.findUser(user.getId());
         log.info("User : " + user);
         log.info("DBUser : " + dbUser);
-        if(user.getDriverState().equals(dbUser.getDriverState()) && user.getLastUpdateDate().equals(dbUser.getLastUpdateDate())) {
+
+        // can have a lock based on leader election using redis or kafka with raft concensus
+        if(user.getDriverState().equals(dbUser.getDriverState())) {
 
             // Process this stage.....
             System.out.println("Verify BG HERE");
             // This will trigger an entry in Background Verification table...
             // These dataset will be visible on a UI for action...
             // Furthermore, an api will be called to trigger completion of background verification.
+
+
         }
     }
 

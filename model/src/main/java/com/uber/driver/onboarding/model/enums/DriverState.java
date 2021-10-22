@@ -5,12 +5,6 @@ public enum DriverState {
     SIGNED_UP {
         @Override
         public DriverState getNextState() {
-            return DOCUMENT_SENT;
-        }
-    },
-    DOCUMENT_SENT {
-        @Override
-        public DriverState getNextState() {
             return DOCUMENT_COLLECTED;
         }
     },
@@ -41,13 +35,25 @@ public enum DriverState {
     DEVICE_RECEIVED {
         @Override
         public DriverState getNextState() {
-            return DEVICE_RECOLLECTED;
+            return ACTIVE;
         }
     },
-    DEVICE_RECOLLECTED {
+    ACTIVE {
         @Override
         public DriverState getNextState() {
-            return null;
+            return DEVICE_RECOLLECT;
+        }
+    },
+    DEVICE_RECOLLECT {
+        @Override
+        public DriverState getNextState() {
+            return INACTIVE;
+        }
+    },
+    INACTIVE {
+        @Override
+        public DriverState getNextState() {
+            return DOCUMENT_COLLECTED;
         }
     };
 

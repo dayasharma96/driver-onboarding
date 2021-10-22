@@ -32,7 +32,7 @@ public class User implements Serializable {
     @Column(name = "email", nullable = false, updatable = false)
     private String email;
 
-    @Column(name = "phone", nullable = false, updatable = false)
+    @Column(name = "phone", updatable = false)
     private String phone;
 
     @Column(name = "name", length = 100)
@@ -41,6 +41,10 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, updatable = false)
     private UserType userType;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "driver_info")
+    private DriverInfo driverInfo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "driver_state")
@@ -92,6 +96,14 @@ public class User implements Serializable {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public DriverInfo getDriverInfo() {
+        return driverInfo;
+    }
+
+    public void setDriverInfo(DriverInfo driverInfo) {
+        this.driverInfo = driverInfo;
     }
 
     public DriverState getDriverState() {
@@ -187,6 +199,7 @@ public class User implements Serializable {
         user.setPwdHash(SecurityUtil.getBase64EncodedString(passwordHash));
         if(type.equals(UserType.DRIVER)) {
             user.setDriverState(DriverState.SIGNED_UP);
+            user.setDriverInfo(new DriverInfo());
         }
         else {
             user.setRiderState(RiderState.OPEN);

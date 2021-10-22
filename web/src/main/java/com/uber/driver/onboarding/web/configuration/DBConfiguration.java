@@ -1,6 +1,8 @@
 package com.uber.driver.onboarding.web.configuration;
 
+import com.uber.driver.onboarding.core.repository.dao.mysql.DriverInfoDao;
 import com.uber.driver.onboarding.core.repository.dao.mysql.UserDao;
+import com.uber.driver.onboarding.core.repository.entity.DriverInfo;
 import com.uber.driver.onboarding.core.repository.entity.User;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,11 @@ public class DBConfiguration {
     @Bean
     public UserDao getUserDao(EntityManager entityManager) {
         return new UserDao(User.class, entityManager);
+    }
+
+    @Bean
+    public DriverInfoDao getDriverInfoDao(EntityManager entityManager) {
+        return new DriverInfoDao(DriverInfo.class, entityManager);
     }
 
     private Properties hibernateProperties() {

@@ -4,7 +4,9 @@ import com.uber.driver.onboarding.api.service.IDriverOnboarding;
 import com.uber.driver.onboarding.core.event.kafka.KafkaMsgProducer;
 import com.uber.driver.onboarding.core.event.model.Message;
 import com.uber.driver.onboarding.core.event.model.MessageType;
+import com.uber.driver.onboarding.core.repository.dao.mysql.DriverInfoDao;
 import com.uber.driver.onboarding.core.repository.dao.mysql.UserDao;
+import com.uber.driver.onboarding.core.repository.entity.DriverInfo;
 import com.uber.driver.onboarding.core.repository.entity.User;
 import com.uber.driver.onboarding.model.enums.DriverState;
 import com.uber.driver.onboarding.model.enums.UserType;
@@ -16,10 +18,12 @@ public class DriverOnboardingService implements IDriverOnboarding {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserDao userDao;
+    private final DriverInfoDao driverInfoDao;
     private final KafkaMsgProducer msgProducer;
 
-    public DriverOnboardingService(UserDao userDao, KafkaMsgProducer msgProducer) {
+    public DriverOnboardingService(UserDao userDao, DriverInfoDao driverInfoDao, KafkaMsgProducer msgProducer) {
         this.userDao = userDao;
+        this.driverInfoDao = driverInfoDao;
         this.msgProducer = msgProducer;
     }
 
@@ -49,6 +53,10 @@ public class DriverOnboardingService implements IDriverOnboarding {
         assert user.getUserType().equals(UserType.DRIVER);
         if (user.getDriverState() != DriverState.DOCUMENT_COLLECTED) {
             throw new RuntimeException("Driver documents not collected or in-progress or already verified.");
+        }
+        DriverInfo driverInfo = user.getDriverInfo();
+        if(!(driverInfo.isReceivedRC() && driverInfo.isReceivedLC())) {
+            throw new RuntimeException("Both RC & LC must be collected before verification.");
         }
     }
 

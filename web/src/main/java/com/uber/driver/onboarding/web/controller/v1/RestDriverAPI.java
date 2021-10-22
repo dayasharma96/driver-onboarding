@@ -15,9 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/driver")
-public class RestDriverOnboardAPI extends BaseController {
+public class RestDriverAPI extends BaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestDriverOnboardAPI.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestDriverAPI.class);
 
     @Autowired
     private IDriverDocumentService driverDocumentService;

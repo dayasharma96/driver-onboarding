@@ -22,7 +22,9 @@ import com.uber.driver.onboarding.core.event.kafka.serde.KafkaJsonDeserializer;
 import com.uber.driver.onboarding.core.event.kafka.serde.KafkaJsonSerializer;
 import com.uber.driver.onboarding.core.event.model.Message;
 import com.uber.driver.onboarding.core.event.model.MessageType;
+import com.uber.driver.onboarding.core.repository.dao.IDriverInfoDao;
 import com.uber.driver.onboarding.core.repository.dao.IUserDao;
+import com.uber.driver.onboarding.core.repository.dao.mysql.DriverInfoDao;
 import com.uber.driver.onboarding.core.repository.dao.mysql.UserDao;
 import com.uber.driver.onboarding.model.pojo.IProperties;
 import com.uber.driver.onboarding.model.util.JsonUtil;
@@ -50,13 +52,13 @@ public class ApiContext {
     }
 
     @Bean
-    public IDriverDocumentService driverDocumentService(IUserDao userDao) {
-        return new DriverDocService(userDao);
+    public IDriverDocumentService driverDocumentService(IUserDao userDao, IDriverInfoDao driverInfoDao) {
+        return new DriverDocService(userDao, driverInfoDao);
     }
 
     @Bean
-    public IDriverOnboarding driverOnboarding(UserDao userDao, KafkaMsgProducer msgProducer) {
-        return new DriverOnboardingService(userDao, msgProducer);
+    public IDriverOnboarding driverOnboarding(UserDao userDao, DriverInfoDao driverInfoDao, KafkaMsgProducer msgProducer) {
+        return new DriverOnboardingService(userDao, driverInfoDao, msgProducer);
     }
 
     @Bean
